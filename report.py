@@ -10,6 +10,8 @@ config=toml.load("config.toml")
 content={}
 command=subprocess.run(["/usr/bin/hostname"], universal_newlines = True, stdout = subprocess.PIPE)
 content["hostname"]=command.stdout.strip()
+command=subprocess.run(["/usr/bin/vcgencmd","measure_temp"], universal_newlines = True, stdout = subprocess.PIPE)
+content["temperature"]=command.stdout.strip()
 command=subprocess.run(["/usr/sbin/ifconfig",config["network"]], universal_newlines = True, stdout = subprocess.PIPE)
 for item in command.stdout.split("\n"):
     if "inet" in item:
