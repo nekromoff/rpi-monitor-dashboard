@@ -37,14 +37,14 @@ foreach (glob('logs/*') as $log) {
     } else {
         $color = '#F68DA4';
     }
-    echo '<div style="padding:1em;border:1px dashed #000;background:' . $color . '">';
+    echo '<div style="padding:1em; border:1px dashed #000; background:' . $color . '">';
     echo 'Last update: ' . date('F d Y H:i:s', $modified_time);
     echo '<h2>' . $content->hostname . ' (' . $health . '%)</h2>';
     unset($content->hostname);
     echo '<table>';
     foreach ($content as $key => $item) {
         echo '<tr><td>';
-        echo '<h3>' . $key . '</h3>';
+        echo '<h3 style="margin-top:0.5em; margin-bottom:0.2em;">' . $key . '</h3>';
         echo nl2br($item);
         echo '</td></tr>';
     }
