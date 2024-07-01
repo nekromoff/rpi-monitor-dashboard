@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
+echo '<!doctype html><html><head><meta charset="utf-8"><title>RPi Monitor Dashboard</title></head><body>';
 echo '<h1>RPi Monitor Dashboard</h1>';
 echo '<div style="display: flex; flex-wrap: wrap;">';
 foreach (glob('logs/*') as $log) {
@@ -52,3 +53,4 @@ foreach (glob('logs/*') as $log) {
     echo '</div>';
 }
 echo '</div>';
+echo '</body></html>';
