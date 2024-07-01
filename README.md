@@ -9,6 +9,8 @@ It currently reports these data:
 * ping results
 * running browser (only Firefox and Chromium are checked at the moment)
 
+![image](https://github.com/nekromoff/rpi-monitor-dashboard/assets/8550349/97196898-339d-4ad4-bc5c-58caf45ae978)
+
 ## Architecture
 
 * **Server** receiver and dashboard (one file) written in PHP
