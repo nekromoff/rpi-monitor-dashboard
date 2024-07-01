@@ -46,7 +46,7 @@ foreach (glob('logs/*') as $log) {
     foreach ($content as $key => $item) {
         echo '<tr><td>';
         echo '<h3 style="margin-top:0.5em; margin-bottom:0.2em;">' . $key . '</h3>';
-        echo nl2br($item);
+        echo nl2br($item, false);
         echo '</td></tr>';
     }
     echo '</table>';
