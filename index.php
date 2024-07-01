@@ -1,6 +1,9 @@
 <?php
+// set for correct time reporting in dashboard
+$timezone = 'Europe/Bratislava';
 
-$time_correction = 2; // hours
+/**********************************************/
+date_default_timezone_set($timezone);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('HTTP/1.1 200 OK');
@@ -35,7 +38,7 @@ foreach (glob('logs/*') as $log) {
         $color = '#F68DA4';
     }
     echo '<div style="padding:1em;border:1px dashed #000;background:' . $color . '">';
-    echo 'Last update: ' . date('F d Y H:i:s', $modified_time + $time_correction * 3600);
+    echo 'Last update: ' . date('F d Y H:i:s', $modified_time);
     echo '<h2>' . $content->hostname . ' (' . $health . '%)</h2>';
     unset($content->hostname);
     echo '<table>';

@@ -9,8 +9,6 @@ It currently reports these data:
 * ping results
 * running browser (only Firefox and Chromium are checked at the moment)
 
-![image](https://github.com/nekromoff/rpi-monitor-dashboard/assets/8550349/97196898-339d-4ad4-bc5c-58caf45ae978)
-
 ## Architecture
 
 * **Server** receiver and dashboard (one file) written in PHP
@@ -18,8 +16,9 @@ It currently reports these data:
 
 ## Installation
 
-1. Upload `index.php` to your server, create `logs/` directory and make it writable (777)
-2. Renam `config.toml.example` to `config.toml` and edit: change URL to server receiver path and network interface to check
-3. Upload `report.py` and `config.toml` to your Raspberry Pi (e.g. put in a new directory `/home/pi/rpi-monitor/`)
-4. Edit CRON (`crontab -e`) and add this line: `1 * * * * cd /home/pi/rpi-monitor/ && python3 report.py` (adjust reporting interval, if needed)
-5. Open server dashboard URL in your browser and enjoy
+1. Upload `index.php` to your server (any desired path), _optionally edit `$timezone`_
+2. Create `logs/` directory in the same path and make it writable (777)
+3. Rename `config.toml.example` to `config.toml` and edit: change URL to server receiver path and network interface to check
+4. Upload `report.py` and `config.toml` to your Raspberry Pi (e.g. put in a new directory `/home/pi/rpi-monitor/`)
+5. Edit CRON (`crontab -e`) and add this line: `1 * * * * cd /home/pi/rpi-monitor/ && python3 report.py` (adjust reporting interval, if needed)
+6. Open server dashboard URL in your browser and enjoy
