@@ -5,11 +5,12 @@ Raspberry Pi Monitor Dashboard is a simple monitoring tool with a dashboard suit
 It currently reports these data:
 
 * hostname
+* CPU temperature
 * network IP address
 * ping results
 * running browser (only Firefox and Chromium are checked at the moment)
 
-![image](https://github.com/nekromoff/rpi-monitor-dashboard/assets/8550349/97196898-339d-4ad4-bc5c-58caf45ae978)
+![image](https://github.com/nekromoff/rpi-monitor-dashboard/assets/8550349/dd7d2664-dc8a-43d8-ba7c-b2a08751fc94)
 
 ## Architecture
 
