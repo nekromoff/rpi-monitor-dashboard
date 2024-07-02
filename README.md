@@ -28,9 +28,9 @@ It currently reports these data:
 6. Open server dashboard URL in your browser and enjoy
 
 ## Dependencies
-* Python v3 (some older Pis might have only v2 installed)
+* Python v3
 * Python modules:
     * subprocess, json, requests (should be available by default)
-    * toml (pip3 install toml)
+    * toml (`pip3 install toml`)
 * If screenshots are enabled:
-    * scrot (sudo apt install scrot)
+    * scrot (`sudo apt install scrot`)
