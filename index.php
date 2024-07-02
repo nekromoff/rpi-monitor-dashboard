@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             /*if (strpos($content->ping, ', 0%') === false) {
             $health -= 30;
             }*/
+            $color = '#8BF8C0';
             echo '<div style="width:calc(32vw - 1em - 1px); padding:1em; border:1px dashed #000; background:' . $color . '">';
             echo 'Last update: ' . date('F d Y H:i:s', $modified_time);
             echo '<h2>' . $content->hostname . '</h2>';
