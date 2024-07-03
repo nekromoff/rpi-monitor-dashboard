@@ -1,6 +1,6 @@
 # URL to POST report to
 receiver = "http://localhost/rpi-monitor-dashboard/"
 # Network interface to check
-network = "eno1"
+network = "wlan0"
 # Screenshot upload
 screenshot = true
