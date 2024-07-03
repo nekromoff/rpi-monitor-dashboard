@@ -1,16 +1,8 @@
 <?php
-/** Configuration (completely optional) **/
 $config = [];
-// Set for correct time reporting
-$config['timezone'] = 'Europe/Bratislava';
-// Set username and password for in-browser Digest authentication
-$config['username'] = '';
-$config['password'] = '';
-/** End of configuration **/
-
-/** STOP, script functionality follows **/
+require 'config.php';
 date_default_timezone_set($config['timezone']);
-$health_colors = ['#8BF8C0', '#F4B490', '#F68DA4'];
+const HEALTH_COLORS = ['#8BF8C0', '#F4B490', '#F68DA4'];
 
 // Handle uploads and receive data
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
