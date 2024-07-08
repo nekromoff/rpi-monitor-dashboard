@@ -1,4 +1,11 @@
 <?php
+/*********************************************************/
+/* RPi Monitor Dashboard                                 */
+/* https://github.com/nekromoff/rpi-monitor-dashboard    */
+/* Copyright (c) 2024+ Daniel Duris, dusoft@staznosti.sk */
+/* License: MIT                                          */
+/* Version: 1.0                                          */
+/*********************************************************/
 $config = [];
 require 'config.php';
 date_default_timezone_set($config['timezone']);
