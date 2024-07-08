@@ -1,6 +1,15 @@
 # URL to POST report to
 receiver = "http://localhost/rpi-monitor-dashboard/"
-# Network interface to check
-network = "wlan0"
-# Screenshot upload
-screenshot = true
+
+# commands with output that can be saved in full or searched (lines extracted)
+[commands]
+temperature = "/usr/bin/vcgencmd measure_temp"
+uptime = "/usr/bin/uptime"
+network = ["/usr/sbin/ifconfig wlan0", ["inet "] ]
+ping = ["/usr/bin/ping -c4 8.8.8.8", ["packets", "rtt"] ]
+browser = ["/usr/bin/ps -A", ["firefox", "chromium"] ]
+
+# commands with no output, e.g. generate a screenshot
+# you can use {hostname} template string to insert real hostname
+[commands_shell]
+screenshot = "DISPLAY=:0 /usr/bin/scrot -o {hostname}.png"
