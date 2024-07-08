@@ -69,3 +69,5 @@ You can use any names for the commands, the names are then shown in the dashboar
     * tomli / tomllib (`pip3 install tomli` for Python <3.10, available by default from 3.11)
 * If screenshots are enabled, scrot is recommended:
     * scrot (`sudo apt install scrot`)
+
+## Please ⭐ star 🌟 this repo, if you like it and use it.
