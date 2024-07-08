@@ -56,9 +56,11 @@ This will run `ps` command and fetch **only** output of lines containing "firefo
 
 ```browser = ["/usr/bin/ps -A", ["firefox", "chromium"] ]```
 
-You can add as many strings to search for as you need. All those found will be joined into one string and reported back under the name of command (e.g. browser).
+You can add as many strings to search for as you need. Any found output lines will be joined into one string and reported back under the name of command (e.g. browser).
 
 Shell commands **without output** are put under `[commands_shell]` section (executed with `shell=True` in Python subprocess) - e.g. screenshot functionality.
+
+You can use any names for the commands, the names are then shown in the dashboard.
 
 ## Dependencies
 * Python v3
