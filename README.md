@@ -17,8 +17,8 @@ By default it reports these data:
 
 ## Architecture
 
-* **Server** receiver and dashboard (one file) written in PHP (+config)
-* **Client** reporting script (one file) written in Python (+config)
+* **Server** receiver and dashboard (one file) written in PHP (+config) - hosted anywhere
+* **Client** reporting script (one file) written in Python (+config) - used on RPi / Linux device
 
 ## Installation
 
