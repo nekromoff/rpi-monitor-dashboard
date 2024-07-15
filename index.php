@@ -25,6 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // receive data
         header('HTTP/1.1 200 OK');
         $content = json_decode(file_get_contents('php://input'));
+        if (isset($content->_config)) {
+            file_put_contents('logs/' . md5($content->hostname) . '_config', json_encode($content->_config));
+        }
         if (isset($content->hostname)) {
             file_put_contents('logs/' . md5($content->hostname), json_encode($content));
             echo '{"status":"OK"}';

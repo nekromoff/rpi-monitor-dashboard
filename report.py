@@ -7,12 +7,12 @@
 ## Version: 1.0                                          ##
 ###########################################################
 
+__version__="1.0"
+
 import tomli as tomllib
 import subprocess
 import json
 import requests
-
-_version="1.0"
 
 with open("config.toml", "rb") as f:
     config = tomllib.load(f)
@@ -55,7 +55,7 @@ except Exception:
     # ignore, skip
     pass
 
-headers = {"User-Agent": "RPi Monitor Dashboard/"+_version}
+headers = {"User-Agent": "RPi Monitor Dashboard/"+__version__}
 
 # if screenshot command exists, upload image
 try:
@@ -65,6 +65,9 @@ try:
 except Exception:
     # ignore, skip
     pass
+
+# include config contents
+content["_config"]=str(config)
 
 headers["Content-Type"]="application/json"
 json_data = json.dumps(content)
