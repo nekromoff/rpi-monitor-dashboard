@@ -74,14 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
                 $counter = fopen($counter_file, 'r+');
                 flock($counter, LOCK_EX);
                 $count = trim(fread($counter, filesize($counter_file)));
-                echo $count;
                 $count++;
                 rewind($counter);
                 fwrite($counter, $count);
                 flock($counter, LOCK_UN);
                 fclose($counter);
             } else {
-                echo 'opening';
                 $counter = fopen($counter_file, 'w');
                 flock($counter, LOCK_EX);
                 fwrite($counter, $count);
