@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
     exit;
 }
 
+$display_dashboard = false;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Handle uploads and receive data
     if (isset($_POST) and isset($_POST['new_config'])) {
@@ -32,8 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             file_put_contents('logs/' . md5($_POST['hostname']) . '_new.config', $_POST['new_config']);
         }
-        // switch method to GET, so we get dashboard displayed (magic!)
-        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $display_dashboard = true;
     } elseif (isset($_FILES) and isset($_FILES['screenshot']['name'])) {
         // Handle image upload
         $filename = pathinfo($_FILES['screenshot']['name'])['filename'];
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
     // Handle authentication, dashboard and configuration update for remotes
     if (isset($_GET['update']) and $_GET['update'] == 1) {
         // Send update to remote devices
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             // counte, if all remotes retrieved updated config
             $new_config = file_get_contents('logs/_new.config');
             $counter_file = 'logs/_new_config.count';
-            $count=1;
+            $count = 1;
             if (file_exists($counter_file)) {
                 $counter = fopen($counter_file, 'r+');
                 flock($counter, LOCK_EX);
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 fclose($counter);
             }
             // delete new config once retrieved by all remotes
-            if (count(glob('logs/*.log'))==$count) {
+            if (count(glob('logs/*.log')) == $count) {
                 unlink('logs/_new.config');
                 unlink($counter_file);
             }
