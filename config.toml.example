@@ -1,7 +1,9 @@
 # URL to POST report to
 receiver = "http://localhost/rpi-monitor-dashboard/"
 
+#-#*+*#-# DO NOT DELETE THIS LINE (it is used in config replace process)
 # commands with output that can be saved in full or searched (lines extracted)
+# you can use {hostname} template string to insert real hostname
 [commands]
 temperature = "/usr/bin/vcgencmd measure_temp"
 uptime = "/usr/bin/uptime"
