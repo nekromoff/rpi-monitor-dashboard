@@ -2,6 +2,8 @@
 
 Raspberry Pi Monitor Dashboard is a simple monitoring tool with a dashboard suitable for monitoring multiple RPi devices. The number of devices you can monitor is unlimited. Fully configurable as to what report from bash / cli / terminal run.
 
+**Remote configuration updates for Linux devices can be managed in the dashboard.**
+
 By default it reports these data:
 
 * hostname
