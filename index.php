@@ -204,7 +204,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
     echo '</body></html>';
 }
-exit(5);
 
 // HTTP Digest authentication parser
 // see: https://www.php.net/manual/en/features.http-auth.php
