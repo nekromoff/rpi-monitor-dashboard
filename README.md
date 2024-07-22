@@ -64,6 +64,11 @@ Shell commands **without output** are put under `[commands_shell]` section (exec
 
 You can use any names for the commands, the names are then shown in the dashboard.
 
+## Upgrade (v1 to v2)
+1. Please, upload new config.toml.example and change any reporting metrics, if required (bash commands).
+2. Copy new report.py to your client(s), index.php to your server.
+3. Optionally delete any files in logs/ directory, so you don't have reported data in old format hanging around.
+
 ## Dependencies
 * Python v3
 * Python modules:
