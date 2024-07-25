@@ -68,7 +68,7 @@ You can use any names for the commands, the names are then shown in the dashboar
 
 1. Each remote device (RPi or Linux) connects to the receiver URL (defined in config.toml) on the server.
 2. Before reporting metrics based on current config.toml, it asks server whether there was a config update (HTTP HEAD method is used to save bandwidth). If it exists, it retrieves the new config (GET method) and makes a backup of an existing config file into config.toml.bak.
-3. Then it replaces `[commands]` and `[commands_shell]` sections with the updated commands and saves it as a new config.toml. Receiver URL is never replaced (and is unavailable in dashboard) as it an incorrect URL could potentially disconnect the remote device from further reporting. This would be similar to crashing your monitoring, so the tool prevents it.
+3. Then it replaces `[commands]` and `[commands_shell]` sections with the updated commands and saves it as a new config.toml. Receiver URL is never replaced (and is unavailable in the dashboard) as an incorrect URL could stop the remote device from further reporting. This would be similar to crashing your monitoring, so the tool prevents it by default.
 3. The updated local config.toml is tested for validity. If invalid TOML syntax is detected, backup version of the former config is used again. If valid syntax is detected, the new config will be used on next connect to report updated metrics.
 
 **There will always be a delay between receiving updated config and reporting new metrics.**
