@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
             }
         }
     }
-    echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>RPi Monitor Dashboard</title><style>
+    echo '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1" /><title>RPi Monitor Dashboard</title><style>
         * { margin: 0; padding: 0; }
         body { font-family: system-ui, sans-serif; padding: 1em; }
         figure { padding: 1em; font-weight: bold; background: #FFF; }
