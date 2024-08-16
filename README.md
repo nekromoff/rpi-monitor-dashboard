@@ -1,8 +1,8 @@
 # RPi Monitor Dashboard
 
-Raspberry Pi Monitor Dashboard is a simple monitoring tool with a dashboard suitable for monitoring multiple RPi devices. The number of devices you can monitor is unlimited. Fully configurable as to what report from bash / cli / terminal run.
+Raspberry Pi Monitor Dashboard is a simple monitoring tool with a dashboard suitable for monitoring multiple RPi devices (or any Linux devices). The number of devices you can monitor is unlimited. Fully configurable as to what report from bash / cli / terminal run.
 
-**Remote configuration updates for Linux devices can be managed in the dashboard.**
+**Remote configuration updates as well as one-time commands to run on Linux devices (RPis) can be managed in the dashboard.**
 
 By default it reports these data:
 
@@ -76,10 +76,20 @@ You can use any names for the commands, the names are then shown in the dashboar
 2. Copy new report.py to your client(s), index.php to your server.
 3. Optionally delete any files in logs/ directory, so you don't have reported data in old format hanging around.
 
+## Upgrade (v2.x to v3)
+1. Use your dashboard to update configs of your devices with new config option:
+```
+# Allow automatic updates of report.py from Github (experimental)
+auto_update = false
+```
+2. Set auto_update to true, if you wish. This is still experimental, but hopefully updates won't break your monitoring.
+3. Update config.php with `// REPORTING INTERVAL` section to have unresponsive devices displayed with red background in your dashboard.
+4. Copy new report.py to your client(s), index.php to your server.
+
 ## Dependencies
 * Python v3
 * Python modules:
-    * sys, subprocess, json, requests (should be available by default)
+    * sys, subprocess, json, requests, binascii (should be available by default)
     * tomli / tomllib (`pip3 install tomli` for Python <3.10, available by default from 3.11)
 * If screenshots are enabled, scrot is recommended:
     * scrot (`sudo apt install scrot`)
