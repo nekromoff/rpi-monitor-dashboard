@@ -4,21 +4,52 @@
 /* https://github.com/nekromoff/rpi-monitor-dashboard    */
 /* Copyright (c) 2024+ Daniel Duris, dusoft@staznosti.sk */
 /* License: MIT                                          */
-/* Version: 2.0                                          */
+/* Version: 3.0                                          */
 /*********************************************************/
+const REPORT_PY_URL = 'https://raw.githubusercontent.com/nekromoff/rpi-monitor-dashboard/main/report.py';
 $config = [];
 require 'config.php';
+// set default reporting interval to 1 hour
+if (!isset($config['interval'])) {
+    $config['interval'] = 3600;
+}
 date_default_timezone_set($config['timezone']);
-const HEALTH_COLORS = ['#8BF8C0', '#F4B490', '#F68DA4']; // @TODO unused, maybe ratio of health from no. of reported metrics
+
+// Check Github main branch for latest Python code version
+$latest_code_filename = '_report_py.latest';
+// Check CRC32 hash of the latest code once a day
+if (!file_exists('logs/' . $latest_code_filename) or filemtime('logs/' . $latest_code_filename) <= time() - 86400) {
+    $latest_code = file_get_contents(REPORT_PY_URL);
+    file_put_contents('logs/' . $latest_code_filename, $latest_code);
+}
+$crc32 = crc32(file_get_contents('logs/' . $latest_code_filename));
 
 if ($_SERVER['REQUEST_METHOD'] == 'HEAD') {
+    // [0 => config update, 1 => one-time commands, 2 => python script code update]
+    $available_updates = [0, 0, 0];
+    // Handle config update check
     if (isset(getallheaders()['X-Hostname'])) {
         $filename = 'logs/' . md5(getallheaders()['X-Hostname']) . '_new.config';
     }
-    // Handle config update check
     if ((isset($filename) and file_exists($filename)) or file_exists('logs/_new.config')) {
+        $available_updates[0] = '1';
+    }
+    unset($filename);
+    // Handle one-time commands update check
+    if (isset(getallheaders()['X-Hostname'])) {
+        $filename = 'logs/' . md5(getallheaders()['X-Hostname']) . '_new.onetime';
+    }
+    if ((isset($filename) and file_exists($filename)) or file_exists('logs/_new.onetime')) {
+        $available_updates[1] = '1';
+    }
+    // Handle python script update check
+    if (isset(getallheaders()['X-Crc32']) and getallheaders()['X-Crc32'] != $crc32) {
+        $available_updates[2] = '1';
+    }
+    $available_updates = implode('', $available_updates);
+    if ((int) $available_updates) {
         header('HTTP/1.1 200 OK');
-        header('X-Update: 1');
+        header('X-Update: ' . $available_updates);
     }
     exit;
 }
@@ -34,6 +65,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             file_put_contents('logs/' . md5($_POST['hostname']) . '_new.config', $_POST['new_config']);
         }
         $display_dashboard = true;
+    } elseif (isset($_POST) and isset($_POST['new_onetime'])) {
+        // save new config
+        if (isset($_POST['all']) and $_POST['all'] == 1) {
+            file_put_contents('logs/_new.onetime', $_POST['new_onetime']);
+        } else {
+            file_put_contents('logs/' . md5($_POST['hostname']) . '_new.onetime', $_POST['new_onetime']);
+        }
+        $display_dashboard = true;
     } elseif (isset($_FILES) and isset($_FILES['screenshot']['name'])) {
         // Handle image upload
         $filename = pathinfo($_FILES['screenshot']['name'])['filename'];
@@ -47,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // receive data
         header('HTTP/1.1 200 OK');
         $content = json_decode(file_get_contents('php://input'));
-        if (isset($content->_config)) {
+        if (isset($content->hostname) and isset($content->_config)) {
             file_put_contents('logs/' . md5($content->hostname) . '.config', $content->_config);
         }
         unset($content->_config);
@@ -63,12 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
     // Handle authentication, dashboard and configuration update for remotes
-    if (isset($_GET['update']) and $_GET['update'] == 1) {
+    if (isset($_GET['update'])) {
+        if ($_GET['update'] == 1) {
+            $filename = '_new.config';
+        } elseif ($_GET['update'] == 2) {
+            $filename = '_new.onetime';
+        } elseif ($_GET['update'] == 3) {
+            $filename = $latest_code_filename;
+        }
         // Send update to remote devices
-        if (file_exists('logs/_new.config')) {
-            // counte, if all remotes retrieved updated config
-            $new_config = file_get_contents('logs/_new.config');
-            $counter_file = 'logs/_new_config.count';
+        if (file_exists('logs/' . $filename)) {
+            // count, if all remotes retrieved updated config
+            $file = file_get_contents('logs/' . $filename);
+            $counter_file = 'logs/' . str_replace('.', '_', $filename) . '.count';
             $count = 1;
             if (file_exists($counter_file)) {
                 $counter = fopen($counter_file, 'r+');
@@ -88,25 +134,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
             }
             // delete new config once retrieved by all remotes
             if (count(glob('logs/*.log')) == $count) {
-                unlink('logs/_new.config');
+                unlink('logs/' . $filename);
                 unlink($counter_file);
             }
         }
-        if (isset(getallheaders()['X-Hostname']) and file_exists('logs/' . md5(getallheaders()['X-Hostname']) . '_new.config')) {
-            $new_config = file_get_contents('logs/' . md5(getallheaders()['X-Hostname']) . '_new.config');
-            unlink('logs/' . md5(getallheaders()['X-Hostname']) . '_new.config');
+        // not elseif, we can have both update for all and an individual update that overrides all device update
+        if (isset(getallheaders()['X-Hostname']) and file_exists('logs/' . md5(getallheaders()['X-Hostname']) . $filename)) {
+            $file = file_get_contents('logs/' . md5(getallheaders()['X-Hostname']) . $filename);
+            unlink('logs/' . md5(getallheaders()['X-Hostname']) . $filename);
         }
-        echo $new_config;
+        echo $file;
         exit;
     }
-    if (isset($_GET['cancel']) and $_GET['cancel'] == 1) {
+    if (isset($_GET['cancel'])) {
         // cancel config update
-        if (isset($_GET['hostname']) and file_exists('logs/' . md5($_GET['hostname']) . '_new.config')) {
-            unlink('logs/' . md5($_GET['hostname']) . '_new.config');
-            $flash = 'ℹ️ Config update canceled.';
-        } elseif (file_exists('logs/_new.config')) {
-            unlink('logs/_new.config');
-            $flash = 'ℹ️ Config update canceled for all devices.';
+        if ($_GET['cancel'] == 1) {
+            if (isset($_GET['hostname']) and file_exists('logs/' . md5($_GET['hostname']) . '_new.config')) {
+                unlink('logs/' . md5($_GET['hostname']) . '_new.config');
+                $flash = 'ℹ️ Config update canceled.';
+            } elseif (file_exists('logs/_new.config')) {
+                unlink('logs/_new.config');
+                $flash = 'ℹ️ Config update canceled for all devices.';
+            }
+        } elseif ($_GET['cancel'] == 2) {
+            if (isset($_GET['hostname']) and file_exists('logs/' . md5($_GET['hostname']) . '_new.onetime')) {
+                unlink('logs/' . md5($_GET['hostname']) . '_new.onetime');
+                $flash = 'ℹ️ One-time commands canceled.';
+            } elseif (file_exists('logs/_new.onetime')) {
+                unlink('logs/_new.onetime');
+                $flash = 'ℹ️ One-time commands canceled for all devices.';
+            }
         }
     }
     // Assume user is authenticated, unless auth is configured and digest tells you otherwise
@@ -152,12 +209,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
         button:hover { background: #000; color: #fff; font-weight: bold; }
         @media (max-width: 800px) { main {flex-direction: column;} section { width: calc(100vw - 4em - 2px); } }
         .warning { background: #FFD6DA; }
+        .error { background: #FFAFB0; }
     </style></head><body>';
     if ($authenticated === true) {
         // Display dashboard, if auth check passed
         echo '<h1>RPi Monitor Dashboard</h1>';
         if (file_exists('logs/_new.config')) {
             echo '<figure class="warning">⚠️ New configuration will be applied on next contact to all devices. <a href="./?cancel=1"><button>Cancel</button></a><details><summary>Config</summary><textarea name="new_config" rows="10">' . file_get_contents('logs/_new.config') . '</textarea></details></figure>';
+        }
+        if (file_exists('logs/_new.onetime')) {
+            echo '<figure class="warning">⚠️ New one-time commands will be applied on next contact to all devices. <a href="./?cancel=2"><button>Cancel</button></a><details><summary>One-time commands</summary><textarea name="onetime" rows="10">' . file_get_contents('logs/_new.onetime') . '</textarea></details></figure>';
         }
         if (isset($flash) and !isset($_GET['hostname'])) {
             echo '<figure>' . $flash . '</figure>';
@@ -167,23 +228,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
             $modified_time = filemtime($log);
             $content = file_get_contents($log);
             $content = json_decode($content);
-            echo '<section>';
+            echo '<section';
+            // display red background for devices that have not received update longer than reporting interval
+            if ($modified_time < time() - $config['interval']) {
+                echo ' class="error"';
+            }
+            echo '>';
             if (isset($flash) and isset($_GET['hostname']) and $_GET['hostname'] == $content->hostname) {
                 echo '<figure>' . $flash . '</figure>';
             }
             if (file_exists('logs/' . md5($content->hostname) . '_new.config')) {
                 echo '<figure class="warning">⚠️ New configuration will be applied on next contact. <a href="./?cancel=1&hostname=' . urlencode($content->hostname) . '"><button>Cancel</button></a><details><summary>Config</summary><textarea name="new_config" rows="10">' . file_get_contents('logs/' . md5($content->hostname) . '_new.config') . '</textarea></details></figure>';
             }
+            if (file_exists('logs/' . md5($content->hostname) . '_new.onetime')) {
+                echo '<figure class="warning">⚠️ One-time commands will be applied on next contact. <a href="./?cancel=2&hostname=' . urlencode($content->hostname) . '"><button>Cancel</button></a><details><summary>One-time commands</summary><textarea name="onetime" rows="10">' . file_get_contents('logs/' . md5($content->hostname) . '_new.onetime') . '</textarea></details></figure>';
+            }
             echo 'Last update: ' . date('F d Y H:i:s', $modified_time);
             $config_filename = str_ireplace('.log', '.config', $log);
             if (file_exists($config_filename)) {
                 $cleaned_config = stripReceiverFromTOMLConfig(file_get_contents($config_filename));
-                echo '<details><summary>Config</summary><form method="post" action="./"><textarea name="new_config" rows="10">' . $cleaned_config . '</textarea><input type="checkbox" name="all" id="all' . md5($content->hostname) . '" value="1"><label for="all' . md5($content->hostname) . '"> Apply to all</label><input type="hidden" name="hostname" value="' . $content->hostname . '"><input type="submit" value="Save"></form></details>';
+                echo '<details><summary>Config</summary><form method="post" action="./"><textarea name="new_config" rows="10">' . $cleaned_config . '</textarea><input type="checkbox" name="all" id="all' . md5($content->hostname) . '" value="1"><label for="all' . md5($content->hostname) . '"> Apply to all</label><input type="hidden" name="hostname" value="' . $content->hostname . '"><input type="submit" value="Save config"></form></details>';
             }
+            $onetime_filename = str_ireplace('.log', '.onetime', $log);
+            $onetime = '';
+            if (file_exists($onetime_filename)) {
+                $onetime = file_get_contents($onetime_filename);
+            }
+            echo '<details><summary>One-time commands</summary><form method="post" action="./"><textarea name="new_onetime" rows="10">' . $onetime . '</textarea><input type="checkbox" name="all" id="onetimeall' . md5($content->hostname) . '" value="1"><label for="onetimeall' . md5($content->hostname) . '"> Apply to all</label><input type="hidden" name="hostname" value="' . $content->hostname . '"><input type="submit" value="Save commands"></form></details>';
             echo '<h2>' . $content->hostname . '</h2>';
             $screenshot = str_ireplace('.log', '.png', $log);
             if (file_exists($screenshot)) {
-                echo '<img src="' . $screenshot . '">';
+                echo '<a href="' . $screenshot . '" title="Open fullsize image"><img src="' . $screenshot . '" alt="' . $content->hostname . ' screenshot"></a>';
             }
             unset($content->hostname);
             echo '<table>';

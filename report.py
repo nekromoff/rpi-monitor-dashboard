@@ -4,10 +4,10 @@
 ## https://github.com/nekromoff/rpi-monitor-dashboard    ##
 ## Copyright (c) 2024+ Daniel Duris, dusoft@staznosti.sk ##
 ## License: MIT                                          ##
-## Version: 2.0                                          ##
+## Version: 3.0                                          ##
 ###########################################################
 
-__version__="2.0"
+__version__="3.0"
 
 import sys
 # tomli/tomllib compatibility layer as Python 3.11+ contains tomllib by default
@@ -18,6 +18,7 @@ else:
 import subprocess
 import json
 import requests
+import binascii
 
 with open("config.toml", "rb") as f:
     config = tomllib.load(f)
@@ -29,14 +30,40 @@ output=subprocess.run("/usr/bin/hostname", universal_newlines = True, stdout = s
 hostname=output.stdout.strip()
 content["hostname"]=hostname
 
-headers = {"User-Agent": "RPi Monitor Dashboard/"+__version__, "X-Hostname": hostname, "Content-Type": "application/json"}
+headers = {"User-Agent": "RPi Monitor Dashboard/"+__version__, "X-Hostname": hostname, "X-Crc32": str(binascii.crc32(open("report.py", "rb").read())), "Content-Type": "application/json"}
+
+# check for available updates
+response=requests.head(config["receiver"], headers = headers)
+
+# check for python script update and overwrite, if auto update enabled
+if "X-Update" in response.headers and response.headers["X-Update"][2]=="1" and config['auto_update']==True:
+    response=requests.get(config["receiver"]+'?update=3', headers = headers)
+    try:
+        subprocess.run('cp report.py report.py.bak', shell = True)
+        f = open("report.py", "w")
+        f.write(response.text)
+        f.close()
+    except Exception:
+        # ignore, skip
+        pass
+
+# check for one-time commands and proceed with execution
+if "X-Update" in response.headers and response.headers["X-Update"][1]=="1":
+    response=requests.get(config["receiver"]+'?update=2', headers = headers)
+    commands=response.text.split("\n")
+    try:
+        for line_no, command in enumerate(commands):
+            command=command.replace("{hostname}", hostname)
+            subprocess.run([command], shell = True)
+    except Exception:
+        # ignore, skip
+        pass
 
 # check for config update and proceed with update
-response=requests.head(config["receiver"], headers=headers)
-if "X-Update" in response.headers and response.headers["X-Update"]=="1":
+if "X-Update" in response.headers and response.headers["X-Update"][0]=="1":
     # backup current config in case the new one is messed up
-    subprocess.run('cp config.toml config.toml.bak', shell=True)
-    response=requests.get(config["receiver"]+'?update=1', headers=headers)
+    subprocess.run('cp config.toml config.toml.bak', shell = True)
+    response=requests.get(config["receiver"]+'?update=1', headers = headers)
     current_config=open("config.toml", "rt").read()
     current_config_lines=current_config.split("\n")
     new_config=''
@@ -61,9 +88,9 @@ if "X-Update" in response.headers and response.headers["X-Update"]=="1":
                 #response = requests.post(config["receiver"], data=json_data, headers=headers)
             except tomllib.TOMLDecodeError:
                 # new config parse fail, invalid TOML config, fallback to backup config
-                subprocess.run('cp config.toml.bak config.toml', shell=True)
+                subprocess.run('cp config.toml.bak config.toml', shell = True)
             # backup cleanup
-            subprocess.run('rm config.toml.bak', shell=True)
+            subprocess.run('rm config.toml.bak', shell = True)
             break;
 
 with open("config.toml", "rb") as f:
@@ -98,14 +125,14 @@ for name, command in config["commands"].items():
 try:
     for name, command in config["commands_shell"].items():
         command=command.replace("{hostname}", hostname)
-        subprocess.run([command], shell=True)
+        subprocess.run([command], shell = True)
 except Exception:
     # ignore, skip
     pass
 
 # post payload
 json_data = json.dumps(content)
-response = requests.post(config["receiver"], data=json_data, headers=headers)
+response = requests.post(config["receiver"], data = json_data, headers = headers)
 
 headers.pop("Content-Type")
 
@@ -113,8 +140,7 @@ headers.pop("Content-Type")
 try:
     if config["commands_shell"]["screenshot"]:
         files = {'screenshot': open(hostname+".png", 'rb')}
-        r = requests.post(config["receiver"], files=files, headers=headers)
+        r = requests.post(config["receiver"], files = files, headers = headers)
 except Exception:
     # ignore, skip
     pass
-

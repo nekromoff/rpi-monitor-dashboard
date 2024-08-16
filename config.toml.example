@@ -1,7 +1,10 @@
-# URL to POST report to
+# URL to report to (dashboard)
 receiver = "http://localhost/rpi-monitor-dashboard/"
 
 #-#*+*#-# DO NOT DELETE THIS LINE (it is used in config replace process)
+# Allow automatic updates of report.py from Github (experimental)
+auto_update = false
+
 # commands with output that can be saved in full or searched (lines extracted)
 # you can use {hostname} template string to insert real hostname
 [commands]
