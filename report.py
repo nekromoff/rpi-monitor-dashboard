@@ -39,10 +39,11 @@ response=requests.head(config["receiver"], headers = headers)
 if "X-Update" in response.headers and response.headers["X-Update"][2]=="1" and config['auto_update']==True:
     response=requests.get(config["receiver"]+'?update=3', headers = headers)
     try:
-        subprocess.run('cp report.py report.py.bak', shell = True)
-        f = open("report.py", "w")
-        f.write(response.text)
-        f.close()
+        if len(response.text)>0:
+            subprocess.run('cp report.py report.py.bak', shell = True)
+            f = open("report.py", "w")
+            f.write(response.text)
+            f.close()
     except Exception:
         # ignore, skip
         pass
