@@ -20,7 +20,9 @@ $latest_code_filename = '_report_py.latest';
 // Check CRC32 hash of the latest code once a day
 if (!file_exists('logs/' . $latest_code_filename) or filemtime('logs/' . $latest_code_filename) <= time() - 86400) {
     $latest_code = file_get_contents(REPORT_PY_URL);
-    file_put_contents('logs/' . $latest_code_filename, $latest_code);
+    if (strlen($latest_code)) {
+        file_put_contents('logs/' . $latest_code_filename, $latest_code);
+    }
 }
 $crc32 = crc32(file_get_contents('logs/' . $latest_code_filename));
 
