@@ -8,11 +8,13 @@ auto_update = false
 # commands with output that can be saved in full or searched (lines extracted)
 # you can use {hostname} template string to insert real hostname
 [commands]
+model = "/usr/bin/cat /proc/device-tree/model"
 temperature = "/usr/bin/vcgencmd measure_temp"
 uptime = "/usr/bin/uptime"
 network = ["/usr/sbin/ifconfig wlan0", ["inet "] ]
 ping = ["/usr/bin/ping -c4 8.8.8.8", ["packets", "rtt"] ]
 browser = ["/usr/bin/ps -A", ["firefox", "chromium"] ]
+os = ["lsb_release -a", ["Description"] ]
 
 # commands with no output, e.g. generate a screenshot
 # you can use {hostname} template string to insert real hostname
