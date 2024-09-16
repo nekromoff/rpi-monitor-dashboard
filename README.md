@@ -15,7 +15,7 @@ By default it reports these data:
 
 **It can report anything as commands are defined as standard bash commands and are fully configurable in config file.**
 
-![image](https://github.com/nekromoff/rpi-monitor-dashboard/assets/8550349/dd7d2664-dc8a-43d8-ba7c-b2a08751fc94)
+![Dashboard screenshot](https://github.com/user-attachments/assets/4ed59bdf-6876-4ceb-b7e1-67ae04e4534d)
 
 ## Architecture
 
