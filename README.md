@@ -30,7 +30,7 @@ By default it reports these data:
 
 ### Server
 1. Upload `index.php` and `config.php` to your server (any desired path), _optionally edit `config.php` options_
-2. Create `logs/` directory in the same path and make it writable (777)
+2. Create `logs/` directory in the same path and make it writable (owned by the same user or 755)
 
 ### Client
 1. Rename `config.toml.example` to `config.toml` and edit: URL to server receiver path and _optionally monitoring commands to execute_ (see Configuration in detail below)
