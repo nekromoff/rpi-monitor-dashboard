@@ -20,6 +20,8 @@ By default it reports these data:
 ![Dashboard screenshot](https://github.com/user-attachments/assets/4ed59bdf-6876-4ceb-b7e1-67ae04e4534d)
 ### Remote configuration + one-time commands (non-root) to be run on next connect
 ![Remote commands](https://github.com/user-attachments/assets/80985bac-e1ba-4909-9769-0d93969e67c4)
+### New config confirmed, can be canceled before next contact
+![New config warning](https://github.com/user-attachments/assets/b5af03d6-88d0-4a54-a2eb-fed920c40000)
 
 ## Architecture
 
