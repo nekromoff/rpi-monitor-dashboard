@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             header('HTTP/1.1 200 OK');
         } else {
             header('HTTP/1.1 401 Unauthorized');
+            header('WWW-Authenticate: Digest realm="' . $realm . '",qop="auth",algorithm=SHA-256,nonce="' . uniqid() . '",opaque="' . hash('sha256', $realm) . '"');
         }
         exit;
     } else {
@@ -187,6 +188,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET' or $display_dashboard === true) {
             $hash2 = hash('sha256', $_SERVER['REQUEST_METHOD'] . ':' . $data['uri']);
             $valid_response = hash('sha256', $hash1 . ':' . $data['nonce'] . ':' . $data['nc'] . ':' . $data['cnonce'] . ':' . $data['qop'] . ':' . $hash2);
             if ($data['response'] != $valid_response) {
+                header('HTTP/1.1 401 Unauthorized');
+                header('WWW-Authenticate: Digest realm="' . $realm . '",qop="auth",algorithm=SHA-256,nonce="' . uniqid() . '",opaque="' . hash('sha256', $realm) . '"');
                 $error = '<h1>Incorrect login details.</h1>';
                 $authenticated = false;
             }
